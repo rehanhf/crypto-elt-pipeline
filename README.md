@@ -41,4 +41,4 @@ A containerized ELT pipeline that extracts cryptocurrency market data from the C
 
 ## 📊 Dashboard Screenshot
 
-![Metabase Dashboard](image/Dashboard.png)
+![Metabase Dashboard](image/dashboard.png)
