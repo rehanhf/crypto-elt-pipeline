@@ -1,0 +1,72 @@
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: airflow.Dockerfile
+  env_file: .env
+  environment:
+    - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres_airflow/airflow
+    - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+    - AIRFLOW__CORE__LOAD_EXAMPLES=false
+    - MINIO_ENDPOINT=http://minio:9000
+    - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+    - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    - BUCKET_NAME=${BUCKET_NAME}
+    - POSTGRES_HOST=postgres_warehouse
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=${POSTGRES_DB}
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./crypto_dbt:/opt/airflow/dbt/crypto_dbt # Mount dbt project
+    - ./logs:/opt/airflow/logs
+
+services:
+  # 1. INFRA: MINIO (Data Lake)
+  minio:
+    image: minio/minio
+    container_name: minio_server
+    command: server /data --console-address ":9001"
+    ports: ["9000:9000", "9001:9001"]
+    env_file: .env
+    volumes: ["./minio_data:/data"]
+
+  # 2. INFRA: POSTGRES WAREHOUSE
+  postgres_warehouse:
+    image: postgres:15
+    container_name: postgres_warehouse
+    ports: ["5432:5432"]
+    env_file: .env
+    volumes: ["./postgres_data:/var/lib/postgresql/data"]
+
+  # 3. (Metadata DB for Airflow)
+  postgres_airflow:
+    image: postgres:13
+    container_name: postgres_airflow
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - ./airflow_db_data:/var/lib/postgresql/data
+
+  # 4. ORCHESTRATION: AIRFLOW WEBSERVER
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports: ["8080:8080"]
+    depends_on: [postgres_airflow]
+
+  # 5. ORCHESTRATION: AIRFLOW SCHEDULER
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    depends_on: [postgres_airflow]
+
+  # 6. VISUALIZATION: METABASE
+  metabase:
+    image: metabase/metabase
+    container_name: metabase_dashboard
+    ports: ["3000:3000"]
+    depends_on: [postgres_warehouse]
+    volumes: ["./metabase_data:/metabase-data"]

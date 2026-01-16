@@ -1,0 +1,15 @@
+.env
+minio_data/
+postgres_data/
+metabase_data/
+logs/
+.DS_Store
+__pycache__/
+*.pyc
+airflow_db_data/
+data/
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.backup
+**/terraform.tfvars
+**/.terraform.lock.hcl

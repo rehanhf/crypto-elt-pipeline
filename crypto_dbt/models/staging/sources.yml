@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw_layer
+    # This tells dbt to look for data in the 'raw_crypto_data' bucket
+    database: warehouse
+    schema: raw
+    tables:
+      # This defines a "table" that is actually a collection of Parquet files
+      - name: source_coingecko
