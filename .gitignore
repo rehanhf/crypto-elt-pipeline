@@ -1,4 +1,7 @@
+node_modules/
 .env
+*.log
+.vscode/
 minio_data/
 postgres_data/
 metabase_data/
