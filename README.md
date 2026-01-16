@@ -4,7 +4,7 @@
 A containerized ELT pipeline that extracts cryptocurrency market data from the CoinGecko API, loads it into a Data Lake (MinIO), and transforms it within a Data Warehouse (Postgres) using dbt. The entire workflow is orchestrated by Apache Airflow.
 
 ## 🏗 Architecture
-![Architecture Diagram](images/architecture.png)
+![Architecture Diagram](image/architecture.png)
 
 ## 🛠 Tech Stack
 *   **Language:** Python 3.10
@@ -41,4 +41,4 @@ A containerized ELT pipeline that extracts cryptocurrency market data from the C
 
 ## 📊 Dashboard Screenshot
 
-![Metabase Dashboard](images/Dashboard.png)
+![Metabase Dashboard](image/Dashboard.png)
